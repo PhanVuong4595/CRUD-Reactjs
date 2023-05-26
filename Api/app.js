@@ -29,6 +29,13 @@ app.get("/user", async (req, res) => {
   res.json({ success: true, data: data });
 });
 
+// Detail
+app.get("/user/:id", async (req, res) => {
+  const category = await userSchema.findOne({ _id: req.params.id }).exec();
+
+  res.json({ success: true, data: category });
+});
+
 //create data
 
 app.post("/user/add", async (req, res) => {
@@ -41,10 +48,20 @@ app.post("/user/add", async (req, res) => {
 //update data
 
 app.put("/user/:id", async (req, res) => {
-  const { id, ...rest } = req.body;
-
-  const data = await userSchema.updateOne({ _id: id }, rest);
-  res.send({ success: true, data: data, message: "data update success" });
+  try {
+    const category = await userSchema
+      .findOneAndUpdate({ _id: req.params.id }, req.body, {
+        new: true,
+      })
+      .exec();
+    res.send({
+      success: true,
+      data: category,
+      message: "data update success",
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: "Không sửa được!" });
+  }
 });
 
 app.delete("/user/:id", async (req, res) => {
